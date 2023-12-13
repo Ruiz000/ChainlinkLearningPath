@@ -35,6 +35,9 @@ contract AutomationTask is AutomationCompatible {
         interval = _interval;
         
         //在此添加 solidity 代码
+        for(uint256 i; i < SIZE;i ++) {
+            healthPoint[i] = MAXIMUM_HEALTH;
+        }
     }
 
     /*
@@ -44,6 +47,7 @@ contract AutomationTask is AutomationCompatible {
      */
     function fight(uint256 fighter) public {
         //在此添加 solidity 代码
+        healthPoint[fighter] -= 50;
     }
 
     /* 
@@ -67,8 +71,15 @@ contract AutomationTask is AutomationCompatible {
         )
     {
         //在此添加和修改 solidity 代码
-        upkeepNeeded = true;
-        
+        upkeepNeeded = false;
+        if(block.timestamp > lastTimeStamp + interval) {
+            for(uint256 i ; i < SIZE && !upkeepNeeded; i++) {
+                if(healthPoint[i] < 1000) {
+                    upkeepNeeded = true;
+                }
+            }
+        }
+        return (upkeepNeeded, "");
     }
 
     /* 
@@ -79,11 +90,16 @@ contract AutomationTask is AutomationCompatible {
      * 可以通过 performData 使用 checkUpkeep 的运算结果，减少 gas 费用
      */
     function performUpkeep(
-        bytes memory /*performData*/
+        bytes memory /* performData */
     ) 
         external 
         override 
     {
         //在此添加 solidity 代码
+        for(uint256 i; i < SIZE; i++) {
+            if(healthPoint[i] < MAXIMUM_HEALTH) {
+                healthPoint[i] = MAXIMUM_HEALTH;
+            }
+        }
     }
 }
